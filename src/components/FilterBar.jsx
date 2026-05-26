@@ -1,45 +1,41 @@
 import { useAppStore } from '../store/useAppStore'
+import { ALL_DECADES, TOP_LIMITS } from '../lib/constants'
 import { formatDecade, t } from '../lib/i18n'
 
-export default function FilterBar({ genres, decades }) {
+export default function FilterBar({ genres, decadeCounts, onRandom }) {
   const language = useAppStore((s) => s.language)
-  const search = useAppStore((s) => s.search)
   const genre = useAppStore((s) => s.genre)
   const decade = useAppStore((s) => s.decade)
   const sort = useAppStore((s) => s.sort)
+  const topLimit = useAppStore((s) => s.topLimit)
 
-  const setLanguage = useAppStore((s) => s.setLanguage)
-  const setSearch = useAppStore((s) => s.setSearch)
   const setGenre = useAppStore((s) => s.setGenre)
   const setDecade = useAppStore((s) => s.setDecade)
   const setSort = useAppStore((s) => s.setSort)
+  const setTopLimit = useAppStore((s) => s.setTopLimit)
   const resetFilters = useAppStore((s) => s.resetFilters)
+
+  const sortDisabled = Boolean(topLimit)
 
   const SORT_OPTIONS = [
     { value: 'rating-desc', label: t(language, 'sort_rating') },
+    { value: 'imdb-desc', label: t(language, 'sort_imdb') },
     { value: 'year-desc', label: t(language, 'sort_year_desc') },
     { value: 'year-asc', label: t(language, 'sort_year_asc') },
     { value: 'title-asc', label: t(language, 'sort_title') },
   ]
 
+  const TOP_OPTIONS = [
+    { value: '', label: t(language, 'top_all') },
+    ...TOP_LIMITS.map((n) => ({
+      value: String(n),
+      label: t(language, `top_${n}`),
+    })),
+  ]
+
   return (
     <div className="filter-bar">
-      <div className="filter-bar__search-wrap">
-        <svg className="filter-bar__icon" viewBox="0 0 24 24" fill="none" aria-hidden>
-          <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
-          <path d="M20 20L16 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-        </svg>
-        <input
-          type="search"
-          className="filter-bar__search"
-          placeholder={t(language, 'searchPlaceholder')}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          aria-label={t(language, 'searchAria')}
-        />
-      </div>
-
-      <div className="filter-bar__controls">
+      <div className="filter-bar__row">
         <select
           className="filter-bar__select"
           value={genre}
@@ -61,9 +57,26 @@ export default function FilterBar({ genres, decades }) {
           aria-label={t(language, 'decadeAria')}
         >
           <option value="">{t(language, 'allDecades')}</option>
-          {decades.map((d) => (
-            <option key={d} value={`${d}s`}>
-              {formatDecade(language, d)}
+          {ALL_DECADES.map((d) => {
+            const count = decadeCounts[d] ?? 0
+            return (
+              <option key={d} value={`${d}s`} disabled={count === 0}>
+                {formatDecade(language, d)}
+                {count === 0 ? ' —' : ''}
+              </option>
+            )
+          })}
+        </select>
+
+        <select
+          className="filter-bar__select"
+          value={topLimit}
+          onChange={(e) => setTopLimit(e.target.value)}
+          aria-label={t(language, 'topAria')}
+        >
+          {TOP_OPTIONS.map((opt) => (
+            <option key={opt.value || 'all'} value={opt.value}>
+              {opt.label}
             </option>
           ))}
         </select>
@@ -73,6 +86,8 @@ export default function FilterBar({ genres, decades }) {
           value={sort}
           onChange={(e) => setSort(e.target.value)}
           aria-label={t(language, 'sortAria')}
+          disabled={sortDisabled}
+          title={sortDisabled ? t(language, 'sortDisabledHint') : undefined}
         >
           {SORT_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>
@@ -80,25 +95,17 @@ export default function FilterBar({ genres, decades }) {
             </option>
           ))}
         </select>
+      </div>
 
-        <div className="filter-bar__lang" role="group" aria-label="Language">
-          <button
-            type="button"
-            className={`filter-bar__lang-btn ${language === 'uk' ? 'is-active' : ''}`}
-            onClick={() => setLanguage('uk')}
-          >
-            UA
-          </button>
-          <button
-            type="button"
-            className={`filter-bar__lang-btn ${language === 'en' ? 'is-active' : ''}`}
-            onClick={() => setLanguage('en')}
-          >
-            EN
-          </button>
-        </div>
-
-        <button type="button" className="filter-bar__reset" onClick={resetFilters}>
+      <div className="filter-bar__actions">
+        <button
+          type="button"
+          className="filter-bar__btn filter-bar__btn--accent"
+          onClick={onRandom}
+        >
+          {t(language, 'randomFilm')}
+        </button>
+        <button type="button" className="filter-bar__btn" onClick={resetFilters}>
           {t(language, 'reset')}
         </button>
       </div>

@@ -2,13 +2,14 @@ import { useState } from 'react'
 import { useAppStore } from '../store/useAppStore'
 import { t } from '../lib/i18n'
 
-export default function MovieCard({ movie }) {
+export default function MovieCard({ movie, isHighlighted }) {
   const [imgError, setImgError] = useState(false)
   const language = useAppStore((s) => s.language)
 
   return (
     <article
-      className="movie-card"
+      id={`movie-${movie.id}`}
+      className={`movie-card ${isHighlighted ? 'movie-card--highlighted' : ''}`}
       style={{ '--accent': movie.accent }}
     >
       <div className="movie-card__poster-wrap">
@@ -31,7 +32,10 @@ export default function MovieCard({ movie }) {
             <small>/10</small>
           </div>
           {typeof movie.imdbRating === 'number' && (
-            <div className="movie-card__rating movie-card__rating--imdb" title={t(language, 'imdb')}>
+            <div
+              className="movie-card__rating movie-card__rating--imdb"
+              title={t(language, 'imdb')}
+            >
               <span>{movie.imdbRating.toFixed(1)}</span>
               <small>IMDb</small>
             </div>

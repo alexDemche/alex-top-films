@@ -1,23 +1,12 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { movies as allMovies } from './data/movies'
 import Header from './components/Header'
+import SearchBar from './components/SearchBar'
 import FilterBar from './components/FilterBar'
 import MovieGrid from './components/MovieGrid'
 import './App.css'
 import { useAppStore } from './store/useAppStore'
-
-function sortMovies(list, sort) {
-  const sorted = [...list]
-  switch (sort) {
-    case 'year-desc':
-      return sorted.sort((a, b) => b.year - a.year)
-    case 'year-asc':
-      return sorted.sort((a, b) => a.year - b.year)
-    case 'title-asc':
-      return sorted.sort((a, b) => a.title.localeCompare(b.title))
-  }
-  return sorted.sort((a, b) => b.rating - a.rating)
-}
+import { filterMovies, getDecadeCounts } from './lib/filterMovies'
 
 export default function App() {
   const language = useAppStore((s) => s.language)
@@ -25,48 +14,56 @@ export default function App() {
   const genre = useAppStore((s) => s.genre)
   const decade = useAppStore((s) => s.decade)
   const sort = useAppStore((s) => s.sort)
+  const topLimit = useAppStore((s) => s.topLimit)
+  const highlightedId = useAppStore((s) => s.highlightedId)
+  const setHighlightedId = useAppStore((s) => s.setHighlightedId)
 
   const genres = useMemo(
     () => [...new Set(allMovies.flatMap((m) => m.genre))].sort(),
     [],
   )
 
-  const decades = useMemo(() => {
-    const starts = new Set(allMovies.map((m) => Math.floor(m.year / 10) * 10))
-    return [...starts].sort((a, b) => a - b)
-  }, [])
+  const decadeCounts = useMemo(() => getDecadeCounts(allMovies), [])
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase()
-    let list = allMovies
+  const baseFiltered = useMemo(
+    () =>
+      filterMovies(allMovies, {
+        search,
+        genre,
+        decade,
+        sort,
+        topLimit: topLimit ? Number(topLimit) : null,
+        language,
+      }),
+    [search, genre, decade, sort, topLimit, language],
+  )
 
-    if (genre) {
-      list = list.filter((m) => m.genre.includes(genre))
+  function handleRandom() {
+    const pool = baseFiltered.length ? baseFiltered : allMovies
+    const randomMovie = pool[Math.floor(Math.random() * pool.length)]
+    setHighlightedId(randomMovie.id)
+  }
+
+  useEffect(() => {
+    // Якщо фільтри дали порожній список, Random забирає з `allMovies`,
+    // тому не очищаємо highlight одразу.
+    if (
+      highlightedId &&
+      baseFiltered.length > 0 &&
+      !baseFiltered.some((m) => m.id === highlightedId)
+    ) {
+      setHighlightedId(null)
     }
+  }, [baseFiltered, highlightedId, setHighlightedId])
 
-    if (decade) {
-      const decadeStart = Number.parseInt(decade.slice(0, 4), 10)
-      if (!Number.isNaN(decadeStart)) {
-        list = list.filter((m) => Math.floor(m.year / 10) * 10 === decadeStart)
-      }
-    }
+  const displayedMovies = useMemo(() => {
+    if (!highlightedId) return baseFiltered
+    const fromBase = baseFiltered.filter((m) => m.id === highlightedId)
+    if (fromBase.length > 0) return fromBase
 
-    if (q) {
-      list = list.filter(
-        (m) =>
-          m.title.toLowerCase().includes(q) ||
-          m.originalTitle.toLowerCase().includes(q) ||
-          m.director.toLowerCase().includes(q),
-      )
-    }
-
-    const sorted = sortMovies(list, sort)
-    if (sort === 'title-asc') {
-      const locale = language === 'en' ? 'en' : 'uk'
-      return [...sorted].sort((a, b) => a.title.localeCompare(b.title, locale))
-    }
-    return sorted
-  }, [search, genre, decade, sort, language])
+    const fromAll = allMovies.filter((m) => m.id === highlightedId)
+    return fromAll
+  }, [baseFiltered, highlightedId])
 
   return (
     <div className="app">
@@ -74,20 +71,21 @@ export default function App() {
       <div className="app__glow app__glow--2" aria-hidden />
 
       <main className="app__main">
-        <Header totalCount={allMovies.length} filteredCount={filtered.length} />
-        <FilterBar genres={genres} decades={decades} />
-        <MovieGrid movies={filtered} />
+        <Header totalCount={allMovies.length} filteredCount={displayedMovies.length} />
+        <SearchBar />
+        <FilterBar genres={genres} decadeCounts={decadeCounts} onRandom={handleRandom} />
+        <MovieGrid movies={displayedMovies} highlightedId={highlightedId} />
       </main>
 
       <footer className="footer">
         <p>
           React ·{' '}
           <a
-            href="https://github.com/alex/alex-top-films"
+            href="https://github.com/alexDemche/alex-top-films"
             target="_blank"
             rel="noopener noreferrer"
           >
-            GitHub
+            alexDemche
           </a>
         </p>
       </footer>
