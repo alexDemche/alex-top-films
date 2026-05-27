@@ -2,6 +2,7 @@ const STRINGS = {
   uk: {
     badge: 'film diary',
     title: 'alex top films',
+    titleReload: 'Перезавантажити сайт',
     subtitle: 'Особиста колекція фільмів і серіалів, які залишились в памʼяті.',
     searchPlaceholder: 'Назва або режисер',
     searchAria: 'Пошук фільмів',
@@ -55,6 +56,7 @@ const STRINGS = {
   en: {
     badge: 'film diary',
     title: 'alex top films',
+    titleReload: 'Reload site',
     subtitle: 'A personal scrapbook of films and series I still remember.',
     searchPlaceholder: 'Title or director',
     searchAria: 'Search movies',

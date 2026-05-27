@@ -13,7 +13,23 @@ export default function Header({ totalCount, filteredCount }) {
       </div>
 
       <h1 className="header__title">
-        <span>{t(language, 'title')}</span>
+        <button
+          type="button"
+          className="header__title-btn"
+          onClick={() => window.location.reload()}
+          aria-label={t(language, 'titleReload')}
+        >
+          {t(language, 'title')
+            .split(' ')
+            .map((word, index) => (
+              <span
+                key={word}
+                className={`header__title-word header__title-word--${index + 1}`}
+              >
+                {word}
+              </span>
+            ))}
+        </button>
       </h1>
       <p className="header__subtitle">{t(language, 'subtitle')}</p>
 
