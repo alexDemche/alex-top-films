@@ -246,12 +246,73 @@
   gap: 0.8rem;
 }
 
-.movie-grid__sentinel {
-  margin-top: 0.5rem;
-  text-align: center;
-  color: #9ea8bf;
+.pagination {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem 0.75rem;
+}
+
+.pagination__pages {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.pagination__btn,
+.pagination__page {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(18, 22, 30, 0.82);
+  color: var(--text);
+  border-radius: 8px;
   font-size: 0.82rem;
-  padding: 0.7rem 0;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.pagination__btn {
+  padding: 0.55rem 0.8rem;
+}
+
+.pagination__page {
+  min-width: 2.1rem;
+  padding: 0.55rem 0.45rem;
+}
+
+.pagination__btn:hover:not(:disabled),
+.pagination__page:hover:not(.is-active) {
+  border-color: rgba(232, 184, 74, 0.35);
+  color: #f3d38b;
+}
+
+.pagination__btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.pagination__page.is-active {
+  border-color: rgba(232, 184, 74, 0.55);
+  background: rgba(232, 184, 74, 0.14);
+  color: #f3d38b;
+}
+
+.pagination__ellipsis {
+  color: var(--text-muted);
+  padding: 0 0.15rem;
+  user-select: none;
+}
+
+.pagination__info {
+  flex-basis: 100%;
+  margin: 0;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.82rem;
 }
 
 .empty-state,
@@ -483,5 +544,14 @@
 
   .movie-card__ratings {
     justify-content: flex-start;
+  }
+
+  .pagination {
+    gap: 0.45rem;
+  }
+
+  .pagination__btn {
+    padding: 0.5rem 0.65rem;
+    font-size: 0.78rem;
   }
 }

@@ -41,6 +41,10 @@ const STRINGS = {
     filtersHide: 'Сховати фільтри',
     loadingMore: 'Завантажую ще...',
     loadingData: 'Завантажую список...',
+    paginationAria: 'Пагінація',
+    paginationPrev: 'Попередня',
+    paginationNext: 'Наступна',
+    paginationInfo: 'Сторінка {current} з {total}',
     results: 'Знайдено',
     films_one: 'фільм',
     films_few: 'фільми',
@@ -90,6 +94,10 @@ const STRINGS = {
     filtersHide: 'Hide filters',
     loadingMore: 'Loading more...',
     loadingData: 'Loading list...',
+    paginationAria: 'Pagination',
+    paginationPrev: 'Previous',
+    paginationNext: 'Next',
+    paginationInfo: 'Page {current} of {total}',
     results: 'Results',
     films_one: 'film',
     films_few: 'films',
@@ -119,4 +127,10 @@ export function formatFilmCount(lang, count) {
     return t(lang, 'films_few')
   }
   return t(lang, 'films_many')
+}
+
+export function formatPagination(lang, current, total) {
+  return t(lang, 'paginationInfo')
+    .replace('{current}', String(current))
+    .replace('{total}', String(total))
 }

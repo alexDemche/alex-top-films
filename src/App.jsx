@@ -4,6 +4,7 @@ import Header from './components/Header'
 import SearchBar from './components/SearchBar'
 import FilterBar from './components/FilterBar'
 import MovieGrid from './components/MovieGrid'
+import Pagination from './components/Pagination'
 import './App.css'
 import { useAppStore } from './store/useAppStore'
 import { filterMovies, getDecadeCounts } from './lib/filterMovies'
@@ -11,7 +12,7 @@ import { t } from './lib/i18n'
 import { fetchMoviesFromSheet } from './lib/sheets'
 
 export default function App() {
-  const PAGE_SIZE = 24
+  const PAGE_SIZE = 12
   const language = useAppStore((s) => s.language)
   const search = useAppStore((s) => s.search)
   const genre = useAppStore((s) => s.genre)
@@ -24,7 +25,7 @@ export default function App() {
   const setFiltersOpen = useAppStore((s) => s.setFiltersOpen)
   const setHighlightedId = useAppStore((s) => s.setHighlightedId)
   const sheetCsvUrl = import.meta.env.VITE_SHEET_CSV_URL
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
+  const [page, setPage] = useState(1)
   const [moviesData, setMoviesData] = useState(() => (sheetCsvUrl ? [] : localMovies))
   const [moviesLoading, setMoviesLoading] = useState(Boolean(sheetCsvUrl))
 
@@ -103,19 +104,23 @@ export default function App() {
   }, [baseFiltered, highlightedId, moviesData])
 
   useEffect(() => {
-    setVisibleCount(PAGE_SIZE)
+    setPage(1)
   }, [displayedMovies])
 
-  const visibleMovies = useMemo(
-    () => displayedMovies.slice(0, visibleCount),
-    [displayedMovies, visibleCount],
-  )
+  const totalPages = Math.max(1, Math.ceil(displayedMovies.length / PAGE_SIZE))
+  const currentPage = Math.min(page, totalPages)
 
-  const hasMore = visibleMovies.length < displayedMovies.length
+  const paginatedMovies = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE
+    return displayedMovies.slice(start, start + PAGE_SIZE)
+  }, [displayedMovies, currentPage])
 
-  function handleLoadMore() {
-    if (!hasMore) return
-    setVisibleCount((prev) => Math.min(prev + PAGE_SIZE, displayedMovies.length))
+  const showPagination = !highlightedId && totalPages > 1
+
+  function handlePageChange(nextPage) {
+    const clamped = Math.max(1, Math.min(nextPage, totalPages))
+    setPage(clamped)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   return (
@@ -144,12 +149,16 @@ export default function App() {
         {moviesLoading ? (
           <p className="loading-state">{t(language, 'loadingData')}</p>
         ) : (
-          <MovieGrid
-            movies={visibleMovies}
-            highlightedId={highlightedId}
-            hasMore={hasMore}
-            onLoadMore={handleLoadMore}
-          />
+          <>
+            <MovieGrid movies={paginatedMovies} highlightedId={highlightedId} />
+            {showPagination && (
+              <Pagination
+                page={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            )}
+          </>
         )}
       </main>
 
