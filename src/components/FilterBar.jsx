@@ -4,12 +4,14 @@ import { formatDecade, t } from '../lib/i18n'
 
 export default function FilterBar({ genres, decadeCounts, onRandom }) {
   const language = useAppStore((s) => s.language)
+  const mediaType = useAppStore((s) => s.mediaType)
   const genre = useAppStore((s) => s.genre)
   const decade = useAppStore((s) => s.decade)
   const sort = useAppStore((s) => s.sort)
   const topLimit = useAppStore((s) => s.topLimit)
 
   const setGenre = useAppStore((s) => s.setGenre)
+  const setMediaType = useAppStore((s) => s.setMediaType)
   const setDecade = useAppStore((s) => s.setDecade)
   const setSort = useAppStore((s) => s.setSort)
   const setTopLimit = useAppStore((s) => s.setTopLimit)
@@ -36,6 +38,17 @@ export default function FilterBar({ genres, decadeCounts, onRandom }) {
   return (
     <div className="filter-bar">
       <div className="filter-bar__row">
+        <select
+          className="filter-bar__select"
+          value={mediaType}
+          onChange={(e) => setMediaType(e.target.value)}
+          aria-label={t(language, 'mediaAria')}
+        >
+          <option value="">{t(language, 'media_all')}</option>
+          <option value="movie">{t(language, 'media_movie')}</option>
+          <option value="series">{t(language, 'media_series')}</option>
+        </select>
+
         <select
           className="filter-bar__select"
           value={genre}

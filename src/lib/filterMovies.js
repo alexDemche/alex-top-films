@@ -16,9 +16,13 @@ export function sortMovies(list, sort, language) {
   }
 }
 
-export function filterMovies(movies, { search, genre, decade, sort, topLimit, language }) {
+export function filterMovies(movies, { search, genre, mediaType, decade, sort, topLimit, language }) {
   const q = search.trim().toLowerCase()
   let list = movies
+
+  if (mediaType) {
+    list = list.filter((m) => (m.mediaType ?? 'movie') === mediaType)
+  }
 
   if (genre) {
     list = list.filter((m) => m.genre.includes(genre))
