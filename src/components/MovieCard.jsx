@@ -19,7 +19,10 @@ export default function MovieCard({ movie, isHighlighted }) {
   }, [copied])
 
   async function handleShare() {
-    const url = `${window.location.origin}${window.location.pathname}#movie-${movie.id}`
+    const shareUrl = new URL(window.location.href)
+    shareUrl.searchParams.set('film', String(movie.id))
+    shareUrl.hash = ''
+    const url = shareUrl.toString()
     const shareTitle = `${movie.title} (${movie.year})`
     const shareText = `${movie.title} / ${movie.originalTitle}`
 

@@ -13,6 +13,9 @@ import { fetchMoviesFromSheet } from './lib/sheets'
 
 export default function App() {
   const PAGE_SIZE = 12
+  const defaultTitle = 'alex top films'
+  const defaultDescription =
+    'Особиста колекція улюблених фільмів і серіалів з рейтингами, постерами та швидким пошуком.'
   const language = useAppStore((s) => s.language)
   const search = useAppStore((s) => s.search)
   const genre = useAppStore((s) => s.genre)
@@ -61,6 +64,17 @@ export default function App() {
 
   const decadeCounts = useMemo(() => getDecadeCounts(moviesData), [moviesData])
 
+  useEffect(() => {
+    if (!moviesData.length) return
+
+    const params = new URLSearchParams(window.location.search)
+    const sharedFilmId = Number(params.get('film'))
+    if (!Number.isFinite(sharedFilmId)) return
+
+    const sharedMovie = moviesData.find((movie) => movie.id === sharedFilmId)
+    if (sharedMovie) setHighlightedId(sharedMovie.id)
+  }, [moviesData, setHighlightedId])
+
   const baseFiltered = useMemo(
     () =>
       filterMovies(moviesData, {
@@ -83,16 +97,10 @@ export default function App() {
   }
 
   useEffect(() => {
-    // Якщо фільтри дали порожній список, Random забирає з `allMovies`,
-    // тому не очищаємо highlight одразу.
-    if (
-      highlightedId &&
-      baseFiltered.length > 0 &&
-      !baseFiltered.some((m) => m.id === highlightedId)
-    ) {
+    if (highlightedId && !moviesData.some((m) => m.id === highlightedId)) {
       setHighlightedId(null)
     }
-  }, [baseFiltered, highlightedId, setHighlightedId])
+  }, [highlightedId, moviesData, setHighlightedId])
 
   const displayedMovies = useMemo(() => {
     if (!highlightedId) return baseFiltered
@@ -102,6 +110,28 @@ export default function App() {
     const fromAll = moviesData.filter((m) => m.id === highlightedId)
     return fromAll
   }, [baseFiltered, highlightedId, moviesData])
+
+  const highlightedMovie = useMemo(
+    () => moviesData.find((movie) => movie.id === highlightedId),
+    [highlightedId, moviesData],
+  )
+
+  useEffect(() => {
+    const title = highlightedMovie
+      ? `${highlightedMovie.title} (${highlightedMovie.year}) | alex top films`
+      : defaultTitle
+    const description = highlightedMovie
+      ? `${highlightedMovie.title} / ${highlightedMovie.originalTitle}. Мій рейтинг: ${highlightedMovie.rating}/10, IMDb: ${highlightedMovie.imdbRating.toFixed(1)}.`
+      : defaultDescription
+
+    document.title = title
+    document.querySelector('meta[name="description"]')?.setAttribute('content', description)
+    document.querySelector('meta[property="og:title"]')?.setAttribute('content', title)
+    document.querySelector('meta[property="og:description"]')?.setAttribute('content', description)
+    document.querySelector('meta[property="og:url"]')?.setAttribute('content', window.location.href)
+    document.querySelector('meta[name="twitter:title"]')?.setAttribute('content', title)
+    document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', description)
+  }, [defaultDescription, highlightedMovie])
 
   useEffect(() => {
     setPage(1)
