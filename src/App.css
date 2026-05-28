@@ -697,9 +697,22 @@
   }
 
   .movie-card__topline {
+    order: 3;
     flex-direction: column;
     align-items: flex-start;
     gap: 0.3rem;
+  }
+
+  .movie-card__title {
+    order: 1;
+  }
+
+  .movie-card__original {
+    order: 2;
+  }
+
+  .movie-card__director {
+    order: 4;
   }
 
   .movie-card__ratings {
