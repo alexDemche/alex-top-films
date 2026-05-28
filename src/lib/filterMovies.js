@@ -39,6 +39,7 @@ export function filterMovies(movies, { search, genre, mediaType, decade, sort, t
     list = list.filter(
       (m) =>
         m.title.toLowerCase().includes(q) ||
+        m.originalTitle.toLowerCase().includes(q) ||
         m.director.toLowerCase().includes(q),
     )
   }

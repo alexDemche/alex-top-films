@@ -7,13 +7,15 @@
 }
 
 :root {
-  --bg: #0a0a0f;
-  --bg-elevated: #12121a;
-  --surface: rgba(255, 255, 255, 0.04);
-  --border: rgba(255, 255, 255, 0.08);
-  --text: #f0f0f5;
-  --text-muted: #8b8b9e;
-  --accent: #e8b84a;
+  --bg: #0d1117;
+  --bg-elevated: #161b22;
+  --surface: rgba(255, 255, 255, 0.055);
+  --surface-strong: rgba(255, 255, 255, 0.085);
+  --border: rgba(255, 255, 255, 0.12);
+  --text: #f4f2ea;
+  --text-soft: #d8d2c4;
+  --text-muted: #a9a39a;
+  --accent: #d7a84f;
   --radius: 16px;
   --radius-sm: 10px;
   --font: 'Outfit', system-ui, sans-serif;
